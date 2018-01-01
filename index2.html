@@ -1,9 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" type="text/css" href="vendor/toastr/toastr.css">
+
 <script src="js/jquery.js"></script>
+
+<script src="vendor/toastr/toastr.min.js" type="text/javascript"></script>
+
 <script>
+  var token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MjYzOTM4MzAsInVzZXJfbmFtZSI6InN5c3RlbSIsImF1dGhvcml0aWVzIjpbImVycFByaW5jaXBhbDpleUppWVhOcFkxVnpaWElpT25zaWRYTmxja2xrSWpveExDSjFjMlZ5UTI5a1pTSTZJbk41YzNSbGJTSXNJblZ6WlhKT1lXMWxJam9pYzNsemRHVnRJaXdpY0dWeWMyOXVUbUZ0WlNJNmJuVnNiQ3dpY0dWeWMyOXVTV1FpT2pGOWZRPT0iXSwianRpIjoiNzg0N2RmNDgtOGU4YS00NmNiLWIxYzgtMTQxNDljZWMwMjM5IiwiY2xpZW50X2lkIjoiZXJwLWNsb3VkIiwic2NvcGUiOlsib3BlbmlkIl19.b22WH-9uAwQDPybCH1AqDojPKKFmE3-6S-h9PMKfml_w4dWQt2f1jHML14TTnKTdgL0wjqwO09ptk4g7dVOKdYZiherKmjauQ5NXFjyYdLaDRahg9M9PORnIbPudYUdV_A2FiIwR3SPGk1F_dfy9OZhX1CQc2dXXjUmo722bBXVogcdK5iL-pRdt0waQKqUsDgDc4p81J5peuQYNLwZMNlIXJvx4AAQPy8tLPaVZkLIA8FKFmt_9Wl2NgQJ_ue2MyNwOFJfvsNNfaxjh5MX2jzZMHtLRM-zAy9WdNjjn1mH3BLYm4EprhAotTYPk4AQvBydMshvS4hcpOAONcDsf-g';
+
 $(document).ready(function(){
+
+  toastr.options.positionClass = 'toast-top-center';
+
   $("#getBtn").click(function(){
     $.ajax({
         type:"GET",
@@ -48,7 +58,7 @@ $(document).ready(function(){
             name:$("#name").val(),
         },
         success:function(data){
-            if(data.status){
+            if(data.status == 0){
                 $("#data2").html(data.data);
             }else{
                 $("#data2").html("验证未通过:"+ data.data);
@@ -59,6 +69,54 @@ $(document).ready(function(){
         }
     });
   });   
+
+    $("#loginBtn").click(function(){
+    $.ajax({
+      // url: host + 'auth/login?userName='+un+'&password='+pw,
+      url: 'http://localhost:20001/auth/login?userName=system&password=123456',
+          type: 'post',
+          // dataType: 'json',
+          contentType: 'application/json; charset=utf-8',
+          // data: formJson,
+          success: function(result) {
+            if (result.status == 0) {
+              toastr.success(result.msg);
+              alert(result.data);
+              window.location.href = 'userTable.html';
+            } else {
+              toastr.error(result.msg);
+            }
+          },
+          error: function() {
+            toastr.error('登入失败');
+      }
+    })
+  });   
+
+
+    $("#testBtn").click(function(){
+      $.ajax({
+        url:'http://localhost:20001/erp-svc-goods/user/list',
+        type:'POST',
+        dataType:"json",
+        data: '{"userName" : "sys"}',
+        beforeSend: function(request) {  
+            request.setRequestHeader("Authorization", 'Bearer ' + token);
+        },
+        contentType: "application/json;charset=UTF-8",
+        success:function(data){
+            if(!data.status){
+                // $("#data2").html(data.data);
+                alert(JSON.stringify(data));
+            }else{
+                $("#data").html("验证未通过:"+ data[0]);
+            }
+        },
+        error:function(data){
+             $("#data2").html("发生错误:"+data.status);
+        }
+    });
+  });  
 });
 </script>
 </head>
@@ -85,6 +143,8 @@ $(document).ready(function(){
 <span>name</span>
 <input type="text" id="name">
 <button id="helloBtn">说话</button>
+<button id="loginBtn">测试登录</button>
+<button id="testBtn">测试</button>
 <div id="data2"></div>
 </div>
 
